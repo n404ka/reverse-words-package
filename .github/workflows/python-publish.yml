@@ -1,0 +1,28 @@
+name: Publish Python package
+
+on:
+  release:
+    types: [published]  # Цей Action спрацьовує, коли публікується новий реліз
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Це вибір ОС для виконання дій
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4  # Перевіряє репозиторій для доступу до файлів
+
+    - name: Set up Python
+      uses: actions/setup-python@v5  # Налаштовує Python
+      with:
+        python-version: '3.x'  # Вказує версію Python (3.x означає останню версію)
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip  # Оновлює pip
+        pip install setuptools wheel twine  # Встановлює необхідні пакети для створення та публікації пакета
+
+    - name: Build and publish
+      run: |
+        python setup.py sdist bdist_wheel  # Створює дистрибутиви пакета (tar.gz та .whl)
+        twine upload dist/* -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}  # Завантажує пакет на PyPI за допомогою Twine
